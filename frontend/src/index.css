@@ -1,0 +1,41 @@
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #f5f5f5;
+  font-family: Arial, sans-serif;
+}
+
+/* LoadingSpinner.css */
+.spinner-root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  color: #444;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 5px solid rgba(0,0,0,0.1);
+  border-top-color: #0aa;
+  animation: spin 0.9s linear infinite;
+  margin-bottom: 8px;
+}
+
+.spinner-message {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
