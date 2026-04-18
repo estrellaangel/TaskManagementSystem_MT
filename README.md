@@ -152,7 +152,9 @@ npm run dev
 The backend listens on `http://localhost:3000` by default and exposes API under `/api`.
 To see swagger go to `http://localhost:3000/api/docs/`
 
-## Frontend setup
+## Frontend setup (run from repository root)
+
+In a new terminal complete these bash commands.
 
 ```bash
 cd frontend
@@ -160,7 +162,7 @@ npm install
 npm run dev
 ```
 
-Open the app in your browser (Vite typically serves at `http://localhost:5173`).
+Open the app in your browser should display in your terminal (Vite typically serves at `http://localhost:5174`).
 
 ## Default seeded credentials
 The seed script creates several users with the plaintext password `password123`. Use one of the seeded emails for login, for example:
@@ -171,6 +173,14 @@ The seed script creates several users with the plaintext password `password123`.
 - diana@example.com (admin)
 
 When you login via the frontend, it calls `POST /api/auth/login` and stores the returned JWT in localStorage for subsequent requests.
+
+## Quick Test
+1. Log in with sample account
+2. See task page
+3. Create a task
+4. Edit a task and assign a user
+5. Filter tasks by assigned user
+6. Open Manage Users and verify permissions page loads
 
 ## Architecture / Where to find code
 
