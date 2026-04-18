@@ -1,0 +1,27 @@
+.spinner-root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 0;
+  color: #444;
+}
+
+.spinner {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 5px solid rgba(0,0,0,0.08);
+  border-top-color: lightseagreen;
+  animation: spin 0.9s linear infinite;
+  margin-bottom: 10px;
+}
+
+.spinner-message {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

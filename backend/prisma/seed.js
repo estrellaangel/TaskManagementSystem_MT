@@ -48,6 +48,7 @@ async function main() {
       email: 'diana@example.com',
       password: passwordHash,
       role: 'admin',
+      isLockedAdmin: true,
       ...adminDefaults,
     },
   });

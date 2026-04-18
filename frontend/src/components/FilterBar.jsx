@@ -5,6 +5,7 @@ import { faChevronDown, faCheck } from '@fortawesome/free-solid-svg-icons';
 function FilterBar({
   currentUser,
   users,
+  tasks,
   searchTerm,
   setSearchTerm,
   statusFilter,
@@ -16,9 +17,24 @@ function FilterBar({
 
   const canAssignTasks = Boolean(currentUser?.canAssignTasks);
 
-  const assignableUsers = users.filter(
-    (user) => user.role === 'manager' || user.role === 'contributor'
-  );
+  // Prefer an explicit users list (from /users) when available (admins).
+  // Otherwise derive the user list from the tasks currently displayed so
+  // non-admin users can still filter by assigned user.
+  let assignableUsers = [];
+
+  if (Array.isArray(users) && users.length > 0) {
+    assignableUsers = users.filter(
+      (u) => u.role === 'manager' || u.role === 'contributor'
+    );
+  } else if (Array.isArray(tasks) && tasks.length > 0) {
+    const map = new Map();
+    tasks.forEach((t) => {
+      if (t.assignedUser && (t.assignedUser.role === 'manager' || t.assignedUser.role === 'contributor')) {
+        map.set(t.assignedUser.id, t.assignedUser);
+      }
+    });
+    assignableUsers = Array.from(map.values());
+  }
 
   const hasActiveFilters =
     statusFilter !== '' || assignedUserId !== '' || searchTerm.trim() !== '';
@@ -36,7 +52,7 @@ function FilterBar({
             {hasActiveFilters ? (
                 <div className='filter-applied'>
                 <FontAwesomeIcon icon={faCheck} className="filter-check-icon" />
-                Active filters applied
+                Filters applied
                 </div>
             ) : (
                 'Show task filters'

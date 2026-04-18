@@ -27,6 +27,9 @@ function TaskPage() {
   
   // Loading / error state for async requests
   const [loading, setLoading] = useState(true);
+  // showLoading is a debounced version of `loading` to avoid flicker
+  // we only show the global spinner if loading lasts longer than 250ms
+  const [showLoading, setShowLoading] = useState(false);
   const [error, setError] = useState('');
   const [deletingTaskId, setDeletingTaskId] = useState(null);
 
@@ -87,6 +90,21 @@ function TaskPage() {
       setLoading(false);
     }
   };
+
+  // Debounce showing the global spinner to avoid UI flicker on very fast API responses
+  useEffect(() => {
+    let timeout = null;
+
+    if (loading) {
+      // show spinner only if loading lasts longer than 250ms
+      timeout = setTimeout(() => setShowLoading(true), 250);
+    } else {
+      // loading finished: clear any pending show and hide spinner immediately
+      setShowLoading(false);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [loading]);
 
   // EFFECTS: search, filtering, pagination, and initial data loading
 
@@ -265,6 +283,7 @@ function TaskPage() {
       <FilterBar
         currentUser={user}
         users={users}
+        tasks={tasks}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         statusFilter={statusFilter}
@@ -275,23 +294,30 @@ function TaskPage() {
 
       {error && <p className="task-error">{error}</p>}
 
-      <div className={`task-content ${loading ? 'task-content-loading' : ''}`}>
+      <div className="task-content">
         {!error && (
           <>
-            <TaskList
-              tasks={tasks}
-              currentUser={user}
-              onTaskClick={handleTaskClick}
-              onDeleteTask={handleRequestDeleteTask}
-              deletingTaskId={deletingTaskId}
-            />
+            {showLoading ? (
+              // show a single, stable spinner when loading takes longer than the debounce threshold
+              <LoadingSpinner message="Loading tasks..." />
+            ) : (
+              <>
+                <TaskList
+                  tasks={tasks}
+                  currentUser={user}
+                  onTaskClick={handleTaskClick}
+                  onDeleteTask={handleRequestDeleteTask}
+                  deletingTaskId={deletingTaskId}
+                />
 
-            {totalPages > 1 && (
-              <Pagination
-                page={page}
-                totalPages={totalPages}
-                setPage={setPage}
-              />
+                {totalPages > 1 && (
+                  <Pagination
+                    page={page}
+                    totalPages={totalPages}
+                    setPage={setPage}
+                  />
+                )}
+              </>
             )}
           </>
         )}

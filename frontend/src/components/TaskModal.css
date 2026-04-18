@@ -16,6 +16,7 @@
   padding: 24px;
   border-radius: 12px;
   box-sizing: border-box;
+  position: relative;
 }
 
 .task-edit-form {
@@ -74,4 +75,34 @@
   .task-modal-actions button {
     width: 100%;
   }
+}
+
+/* Overlay shown when saving to prevent interaction and show progress */
+.modal-saving-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.85);
+  border-radius: 12px;
+  z-index: 50;
+}
+
+.modal-saving-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: lightseagreen;
+  font-weight: 600;
+}
+
+.modal-saving-content .spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 5px solid rgba(0,0,0,0.06);
+  border-top-color: lightseagreen;
+  animation: spin 0.9s linear infinite;
 }

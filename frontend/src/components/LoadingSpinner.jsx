@@ -1,5 +1,5 @@
-// frontend/src/components/LoadingSpinner.jsx
 import React from 'react';
+import './LoadingSpinner.css';
 
 export default function LoadingSpinner({ message = 'Loading...' }) {
   return (

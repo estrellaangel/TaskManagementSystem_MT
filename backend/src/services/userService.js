@@ -17,8 +17,8 @@ function makeError(message, status) {
 }
 
 exports.getUsers = async (currentUser) => {
-  if (currentUser.role !== 'admin') {
-    throw makeError('Only admins can view users.', 403);
+  if (!currentUser.canAssignTasks && currentUser.role !== 'admin') {
+    throw makeError('You do not have permission to view users.', 403);
   }
 
   return userData.getUsers();

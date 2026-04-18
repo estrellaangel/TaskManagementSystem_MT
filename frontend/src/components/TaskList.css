@@ -377,7 +377,7 @@
    Mobile card layout
    ========================================= */
 
-@media (max-width: 800px) {
+@media (max-width: 650px) {
   .task-table-wrapper {
     overflow: visible;
     border: none;
