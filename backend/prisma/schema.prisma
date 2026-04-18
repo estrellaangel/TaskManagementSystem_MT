@@ -14,12 +14,13 @@ model User {
   password  String
   role      String   @default("contributor")
 
-  canViewAllTasks  Boolean  @default(false)
+  isLockedAdmin   Boolean  @default(false)
+
+  canViewAllTasks Boolean  @default(false)
   canCreateTasks  Boolean  @default(false)
   canEditTasks    Boolean  @default(false)
   canDeleteTasks  Boolean  @default(false)
   canAssignTasks  Boolean  @default(false)
-
 
   tasks     Task[]
   createdAt DateTime @default(now())
