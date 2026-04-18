@@ -1,11 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faGear, faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import api from '../services/api';
 import TaskList from '../components/TaskList';
 import Pagination from '../components/Pagination';
 import TaskFormModal from '../components/TaskFormModal';
 import FilterBar from '../components/FilterBar';
 import LoadingSpinner from '../components/LoadingSpinner';
+import '../components/FilterBar.css';
+import '../components/TaskList.css';
+import '../components/TaskModal.css';
 
 import './TaskPage.css';
 
@@ -18,6 +23,7 @@ function TaskPage() {
   const [users, setUsers] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
   
   // Loading / error state for async requests
   const [loading, setLoading] = useState(true);
@@ -56,63 +62,63 @@ function TaskPage() {
 
   // Fetch task list using current page + filters
   const fetchTasks = async () => {
-  try {
-        setLoading(true);
-        setError('');
+    try {
+      setLoading(true);
+      setError('');
 
-        const response = await api.get('/tasks', {
+      const response = await api.get('/tasks', {
         params: {
-            page,
-            limit: 5,
-            status: statusFilter || undefined,
-            assignedUserId: canAssignTasks 
-                ? assignedUserId || undefined : 
-                undefined,
-            search: debouncedSearchTerm.trim() || undefined,
+          page,
+          limit: 5,
+          status: statusFilter || undefined,
+          assignedUserId: canAssignTasks
+            ? assignedUserId || undefined
+            : undefined,
+          search: debouncedSearchTerm.trim() || undefined,
         },
-        });
+      });
 
-        setTasks(response.data.data);
-        setTotalPages(response.data.pagination.totalPages);
+      setTasks(response.data.data);
+      setTotalPages(response.data.pagination.totalPages);
     } catch (error) {
-        console.error(error);
-        setError('Failed to load tasks.');
+      console.error(error);
+      setError('Failed to load tasks.');
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-    };
+  };
 
-    // EFFECTS: search, filtering, pagination, and initial data loading
+  // EFFECTS: search, filtering, pagination, and initial data loading
 
-    // Debounce search input so API is not called on every keystroke
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setDebouncedSearchTerm(searchTerm);
-        }, 350);
+  // Debounce search input so API is not called on every keystroke
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
 
-        return () => clearTimeout(timeout);
-    }, [searchTerm]);
+    return () => clearTimeout(timeout);
+  }, [searchTerm]);
 
-    // Fetch tasks whenever page or active filters change
-    useEffect(() => {
-        if (!user) {
-            navigate('/');
-            return;
-        }
+  // Fetch tasks whenever page or active filters change
+  useEffect(() => {
+    if (!user) {
+      navigate('/');
+      return;
+    }
 
-        fetchTasks();
-    }, [page, statusFilter, assignedUserId, debouncedSearchTerm]);
+    fetchTasks();
+  }, [page, statusFilter, assignedUserId, debouncedSearchTerm]);
 
-    // Fetch users once when page loads
-    useEffect(() => {
-        if (!user) return;
-        fetchUsers();
-    }, []);
+  // Fetch users once when page loads
+  useEffect(() => {
+    if (!user) return;
+    fetchUsers();
+  }, []);
 
-    // Reset back to first page whenever filters/search change
-    useEffect(() => {
-        setPage(1);
-    }, [statusFilter, assignedUserId, debouncedSearchTerm]);
+  // Reset back to first page whenever filters/search change
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, assignedUserId, debouncedSearchTerm]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -151,56 +157,71 @@ function TaskPage() {
   };
 
   const handleSaveTask = async (updatedTask) => {
-  if (!canEditTasks) {
-    throw new Error('You do not have permission to edit tasks.');
-  }
-
-  try {
-    const payload = {
-      title: updatedTask.title,
-      description: updatedTask.description,
-      status: updatedTask.status,
-      ...(canAssignTasks && {
-        assignedUserId: updatedTask.assignedUserId,
-      }),
-    };
-
-    const response = await api.put(`/tasks/${updatedTask.id}`, payload);
-
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === updatedTask.id ? response.data : task
-      )
-    );
-
-    setSelectedTask(null);
-  } catch (error) {
-    console.error(error);
-    throw new Error(error.response?.data?.message || 'Failed to update task.');
-  }
-};
-
-  const handleDeleteTask = async (taskId) => {
-    if (!canDeleteTasks) {
-        alert('You do not have permission to delete tasks.');
-        return;
+    if (!canEditTasks) {
+      throw new Error('You do not have permission to edit tasks.');
     }
 
     try {
-        setDeletingTaskId(taskId);
-        await api.delete(`/tasks/${taskId}`);
+      const payload = {
+        title: updatedTask.title,
+        description: updatedTask.description,
+        status: updatedTask.status,
+        ...(canAssignTasks && {
+          assignedUserId: updatedTask.assignedUserId,
+        }),
+      };
 
-        setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+      const response = await api.put(`/tasks/${updatedTask.id}`, payload);
 
-        if (selectedTask?.id === taskId) {
-        setSelectedTask(null);
-        }
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === updatedTask.id ? response.data : task
+        )
+      );
+
+      setSelectedTask(null);
     } catch (error) {
-        console.error(error);
-        alert(error.response?.data?.message || 'Failed to delete task.');
-    } finally {
-        setDeletingTaskId(null);
+      console.error(error);
+      throw new Error(error.response?.data?.message || 'Failed to update task.');
     }
+  };
+
+  const handleDeleteTask = async (taskId) => {
+    if (!canDeleteTasks) {
+      alert('You do not have permission to delete tasks.');
+      return;
+    }
+
+    try {
+      setDeletingTaskId(taskId);
+      await api.delete(`/tasks/${taskId}`);
+
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+
+      if (selectedTask?.id === taskId) {
+        setSelectedTask(null);
+      }
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.message || 'Failed to delete task.');
+    } finally {
+      setDeletingTaskId(null);
+    }
+  };
+
+  const handleRequestDeleteTask = (task) => {
+    setTaskToDelete(task);
+  };
+
+  const handleCancelDeleteTask = () => {
+    setTaskToDelete(null);
+  };
+
+  const handleConfirmDeleteTask = async () => {
+    if (!taskToDelete) return;
+
+    await handleDeleteTask(taskToDelete.id);
+    setTaskToDelete(null);
   };
 
   return (
@@ -209,8 +230,11 @@ function TaskPage() {
         <div>
           <h1 className="task-page-title">Tasks</h1>
           <p className="task-page-subtitle">
-            Welcome, {user?.name} ({user?.role})
-          </p>
+            Welcome, <span className="task-page-subtitle-role">
+            {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : ''}
+            </span>{' '}
+            {user?.name}
+            </p>
         </div>
 
         <div className="task-header-actions">
@@ -219,12 +243,21 @@ function TaskPage() {
               className="add-task-button"
               onClick={() => setShowCreateForm(true)}
             >
-              Add Task
+            <FontAwesomeIcon icon={faPlus} /> Add Task
+            </button>
+          )}
+
+          {user?.role === 'admin' && (
+            <button
+              className="edit-permissions-button"
+              onClick={() => navigate('/users/permissions')}
+            >
+              <FontAwesomeIcon icon={faGear} /> Manage Users
             </button>
           )}
 
           <button className="logout-button" onClick={handleLogout}>
-            Logout
+            <FontAwesomeIcon icon={faArrowRightFromBracket} /> Logout
           </button>
         </div>
       </div>
@@ -238,73 +271,31 @@ function TaskPage() {
         setStatusFilter={setStatusFilter}
         assignedUserId={assignedUserId}
         setAssignedUserId={setAssignedUserId}
-        />
+      />
 
-      {/* {loading && <p className="task-message">Loading tasks...</p>} */}
-
-      {/* {error && <p className="task-error">{error}</p>}
-      {!loading && !error && (
-        <>
-          <TaskList
-            tasks={tasks}
-            currentUser={user}
-            onTaskClick={handleTaskClick}
-            onDeleteTask={handleDeleteTask}
-            deletingTaskId={deletingTaskId}
-          />
-
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-            setPage={setPage}
-          />
-        </>
-      )} */}
-{/* 
       {error && <p className="task-error">{error}</p>}
 
-      {loading && <p className="task-message">Updating tasks...</p>} */}
-
-      {/* {!error && (
-      <>
-        <TaskList
-        tasks={tasks}
-        currentUser={user}
-        onTaskClick={handleTaskClick}
-        onDeleteTask={handleDeleteTask}
-        deletingTaskId={deletingTaskId}
-        />
-
-        <Pagination
-        page={page}
-        totalPages={totalPages}
-        setPage={setPage}
-        />
-      </>
-      )} */}
-
       <div className={`task-content ${loading ? 'task-content-loading' : ''}`}>
-  {!error && (
-    <>
-      <TaskList
-        tasks={tasks}
-        currentUser={user}
-        onTaskClick={handleTaskClick}
-        onDeleteTask={handleDeleteTask}
-        deletingTaskId={deletingTaskId}
-      />
+        {!error && (
+          <>
+            <TaskList
+              tasks={tasks}
+              currentUser={user}
+              onTaskClick={handleTaskClick}
+              onDeleteTask={handleRequestDeleteTask}
+              deletingTaskId={deletingTaskId}
+            />
 
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        setPage={setPage}
-      />
-    </>
-  )}
-</div>
-
-{/* {loading && <p className="task-message">Updating tasks...</p>} */}
-{error && <p className="task-error">{error}</p>}
+            {totalPages > 1 && (
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                setPage={setPage}
+              />
+            )}
+          </>
+        )}
+      </div>
 
       {selectedTask && (
         <TaskFormModal
@@ -325,6 +316,36 @@ function TaskPage() {
           onClose={() => setShowCreateForm(false)}
           onSubmit={handleCreateTask}
         />
+      )}
+
+      {taskToDelete && (
+        <div className="task-modal-overlay">
+          <div className="task-modal delete-confirm-modal">
+            <h2>⚠️ Delete Task</h2>
+            <p className="delete-confirm-text">
+              Are you sure you want to delete <strong>{taskToDelete.title}</strong>?
+            </p>
+
+            <div className="task-modal-actions">
+              <button
+                type="button"
+                onClick={handleCancelDeleteTask}
+                disabled={deletingTaskId === taskToDelete.id}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className="delete-confirm-button"
+                onClick={handleConfirmDeleteTask}
+                disabled={deletingTaskId === taskToDelete.id}
+              >
+                {deletingTaskId === taskToDelete.id ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

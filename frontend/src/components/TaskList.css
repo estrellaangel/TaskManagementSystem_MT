@@ -1,0 +1,485 @@
+/* =========================================
+   Task table shell
+   ========================================= */
+
+.task-table-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.task-table {
+  width: 100%;
+  min-width: 0px;
+}
+
+
+/* =========================================
+   Base row layout
+   Width is controlled by wrapper classes below
+   ========================================= */
+
+.task-row {
+  display: grid;
+  gap: 14px;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Desktop layouts by view */
+.task-table-actions-both .task-row {
+  grid-template-columns: 100px minmax(180px, 2fr) 100px 150px 120px;
+}
+
+.task-table-actions-single .task-row {
+  grid-template-columns: 100px minmax(180px, 2fr) 100px 150px 84px;
+}
+
+.task-table-head {
+  background: #f1f3f5;
+  font-weight: 700;
+}
+
+.task-row-clickable {
+  cursor: pointer;
+}
+
+.task-row-clickable:hover {
+  background: #fafafa;
+}
+
+.task-cell {
+  min-width: 0;
+  font-size: 0.95rem;
+}
+
+
+/* =========================================
+   Header alignment
+   ========================================= */
+
+.task-table-head .task-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+
+/* =========================================
+   Description column
+   ========================================= */
+
+.task-cell-description {
+  text-align: left;
+  overflow: visible;
+  white-space: normal;
+}
+
+.task-title,
+.task-description {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.task-title {
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.task-description {
+  color: #555;
+  font-size: 0.92rem;
+}
+
+
+/* =========================================
+   Centered body cells
+   ========================================= */
+
+.task-cell-status,
+.task-cell-date {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+
+/* =========================================
+   Status pill
+   ========================================= */
+
+.task-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.task-status-todo {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.task-status-in-progress {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.task-status-done {
+  background: #dcfce7;
+  color: #166534;
+}
+
+
+/* =========================================
+   Assigned column
+   Desktop: full name visible and left aligned
+   Tablet: initials only and centered
+   Mobile: full name returns
+   ========================================= */
+
+.task-cell-assigned {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  min-width: 0;
+}
+
+.task-assigned-user {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.task-assigned-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  color: #374151;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.task-assigned-name {
+  display: inline;
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.task-unassigned {
+  color: #6b7280;
+}
+
+/* Hover tooltip */
+.task-assigned-user::after {
+  content: attr(data-full-name);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  z-index: 10;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #111827;
+  color: #fff;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.task-assigned-user:hover::after {
+  opacity: 1;
+}
+
+
+/* =========================================
+   Actions column
+   ========================================= */
+
+.task-cell-actions {
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.task-table-actions-both .task-cell-actions {
+  min-width: 116px;
+}
+
+.task-table-actions-single .task-cell-actions {
+  min-width: 84px;
+}
+
+.task-actions-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Shared button base */
+.edit-task-button,
+.delete-task-button {
+  height: 34px;
+  min-height: 34px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-size: 0.88rem;
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.edit-task-button {
+  min-width: 34px;
+  padding: 0 10px;
+  border-color: #e5e7eb;
+  background: #f8fafc;
+  color: #374151;
+  gap: 6px;
+}
+
+.edit-task-button:hover {
+  background: #eef2f7;
+  border-color: #d1d5db;
+}
+
+.edit-task-button-text {
+  display: none;
+}
+
+.delete-task-button {
+  width: 34px;
+  min-width: 34px;
+  padding: 0;
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.delete-task-button:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.delete-task-button:disabled,
+.edit-task-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+/* =========================================
+   Empty state
+   ========================================= */
+
+.task-empty-row {
+  padding: 24px 20px;
+  border-top: 1px solid #eee;
+}
+
+.task-empty {
+  margin: 0;
+  color: #666;
+}
+
+
+/* =========================================
+   Tablet
+   Hide full assigned name and center initials
+   ========================================= */
+
+@media (max-width: 1024px) {
+  .task-table {
+    min-width: 0;
+  }
+
+  .task-table-actions-both .task-row {
+    grid-template-columns: 85px minmax(0, 1fr) 85px 90px 110px;
+    gap: 12px;
+  }
+
+  .task-table-actions-single .task-row {
+    grid-template-columns: 85px minmax(0, 1fr) 85px 90px 76px;
+    gap: 12px;
+  }
+
+  .task-table-actions-both .task-cell-actions {
+    min-width: 110px;
+  }
+
+  .task-table-actions-single .task-cell-actions {
+    min-width: 76px;
+  }
+
+  .task-actions-buttons {
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .task-cell-assigned {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .task-assigned-user {
+    justify-content: center;
+    gap: 0;
+  }
+
+  .task-assigned-name {
+    display: none;
+  }
+
+  .edit-task-button {
+    min-width: 34px;
+    padding: 0 10px;
+  }
+}
+
+
+/* =========================================
+   Mobile card layout
+   ========================================= */
+
+@media (max-width: 800px) {
+  .task-table-wrapper {
+    overflow: visible;
+    border: none;
+    background: transparent;
+  }
+
+  .task-table {
+    min-width: 0;
+  }
+
+  .task-table-head {
+    display: none;
+  }
+
+  /* Force ALL table variants into card layout */
+  .task-row,
+  .task-table-actions-both .task-row,
+  .task-table-actions-single .task-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+  }
+
+  .task-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .task-cell::before {
+    content: attr(data-label);
+    margin-bottom: 6px;
+    color: #000;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .task-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #4b5563;
+  }
+
+  .task-cell-status,
+  .task-cell-date,
+  .task-cell-assigned,
+  .task-cell-actions {
+    justify-content: flex-start;
+  }
+
+  .task-cell-assigned {
+    text-align: left;
+  }
+
+  .task-assigned-user {
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .task-assigned-name {
+    display: inline;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .task-cell-actions,
+  .task-table-actions-both .task-cell-actions,
+  .task-table-actions-single .task-cell-actions {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Edit wide, Delete compact */
+  .task-actions-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .edit-task-button {
+    width: 100%;
+    min-height: 40px;
+    justify-content: center;
+  }
+
+  .edit-task-button-text {
+    display: inline;
+  }
+
+  .delete-task-button {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    min-height: 40px;
+  }
+}

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import TaskPage from './pages/TaskPage';
+import UserPermissionsPage from './pages/UserPermissionsPage';
 
 function App() {
   return (
@@ -8,6 +9,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/tasks" element={<TaskPage />} />
+        <Route path="/users/permissions" element={<UserPermissionsPage />} />
       </Routes>
     </BrowserRouter>
   );

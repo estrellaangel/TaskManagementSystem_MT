@@ -1,3 +1,6 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPenToSquare, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+
 function TaskRow({ task, currentUser, onClick, onDelete, isDeleting }) {
   const canEdit = Boolean(currentUser?.canEditTasks);
   const canDelete = Boolean(currentUser?.canDeleteTasks);
@@ -7,15 +10,19 @@ function TaskRow({ task, currentUser, onClick, onDelete, isDeleting }) {
     onClick?.();
   };
 
+  const handleEditClick = (e) => {
+    e.stopPropagation();
+
+    if (!canEdit) return;
+    onClick?.();
+  };
+
   const handleDeleteClick = (e) => {
     e.stopPropagation();
 
     if (!canDelete || isDeleting) return;
 
-    const confirmed = window.confirm(`Delete "${task.title}"?`);
-    if (confirmed) {
-      onDelete?.(task.id);
-    }
+    onDelete?.(task);
   };
 
   return (
@@ -24,7 +31,17 @@ function TaskRow({ task, currentUser, onClick, onDelete, isDeleting }) {
       onClick={handleRowClick}
     >
       <div className="task-cell task-cell-status" data-label="Status">
-        {task.status}
+        <span
+          className={`task-status-pill ${
+            task.status === 'Todo'
+              ? 'task-status-todo'
+              : task.status === 'In Progress'
+              ? 'task-status-in-progress'
+              : 'task-status-done'
+          }`}
+        >
+          {task.status}
+        </span>
       </div>
 
       <div className="task-cell task-cell-description" data-label="Description">
@@ -39,20 +56,55 @@ function TaskRow({ task, currentUser, onClick, onDelete, isDeleting }) {
       </div>
 
       <div className="task-cell task-cell-assigned" data-label="Assigned">
-        {task.assignedUser?.name || 'Unassigned'}
+        {task.assignedUser ? (
+          <div
+            className="task-assigned-user"
+            data-full-name={task.assignedUser.name}
+            title={task.assignedUser.name}
+          >
+            <div className="task-assigned-avatar">
+              {task.assignedUser.name
+                .split(' ')
+                .map((part) => part[0])
+                .join('')
+                .slice(0, 2)
+                .toUpperCase()}
+            </div>
+            <span className="task-assigned-name">{task.assignedUser.name}</span>
+          </div>
+        ) : (
+          <span className="task-unassigned">Unassigned</span>
+        )}
       </div>
 
       <div className="task-cell task-cell-actions" data-label="Actions">
-        {canDelete && (
-          <button
-            type="button"
-            className="delete-task-button"
-            onClick={handleDeleteClick}
-            disabled={isDeleting}
-          >
-            {isDeleting ? 'Deleting...' : 'Delete'}
-          </button>
-        )}
+        <div className="task-actions-buttons">
+          {canEdit && (
+            <button
+              type="button"
+              className="edit-task-button"
+              onClick={handleEditClick}
+              aria-label="Edit task"
+              title="Edit"
+            >
+              <span className="edit-task-button-icon"><FontAwesomeIcon icon={faPenToSquare} /></span>
+              <span className="edit-task-button-text">Edit</span>
+            </button>
+          )}
+
+          {canDelete && (
+            <button
+              type="button"
+              className="delete-task-button"
+              onClick={handleDeleteClick}
+              disabled={isDeleting}
+              aria-label={isDeleting ? 'Deleting task' : 'Delete task'}
+              title={isDeleting ? 'Deleting...' : 'Delete'}
+            >
+              <FontAwesomeIcon icon={faTrashCan} />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

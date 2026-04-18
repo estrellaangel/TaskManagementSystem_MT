@@ -7,15 +7,23 @@ function TaskList({
   onDeleteTask,
   deletingTaskId,
 }) {
+  const canEdit = Boolean(currentUser?.canEditTasks);
+  const canDelete = Boolean(currentUser?.canDeleteTasks);
+
+  const actionLayoutClass =
+    canEdit && canDelete
+      ? 'task-table-actions-both'
+      : 'task-table-actions-single';
+
   return (
-    <div className="task-table-wrapper">
+    <div className={`task-table-wrapper ${actionLayoutClass}`}>
       <div className="task-table">
         <div className="task-table-head task-row">
-          <div className="task-cell task-cell-status">Status</div>
+          <div className="task-cell task-cell-status-title">Status</div>
           <div className="task-cell task-cell-description">Description</div>
           <div className="task-cell task-cell-date">Date</div>
           <div className="task-cell task-cell-assigned">Assigned</div>
-          <div className="task-cell task-cell-actions">Actions</div>
+          <div className="task-cell task-cell-actions" aria-hidden="true">Actions</div>
         </div>
 
         {tasks.length === 0 ? (

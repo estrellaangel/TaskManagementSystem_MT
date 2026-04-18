@@ -46,19 +46,19 @@ function TaskFormModal({
     setSaving(true);
 
     try {
-      await onSubmit({
+    await onSubmit({
         ...(task || {}),
         title: title.trim(),
         description: description.trim(),
         status,
-        ...(canAssignTasks && {
-            assignedUserId: assignedUserId === '' ? null : Number(assignedUserId),
-        }),
-        });
+        assignedUserId: canAssignTasks
+        ? assignedUserId === '' ? null : Number(assignedUserId)
+        : task?.assignedUserId ?? null,
+    });
     } catch (err) {
-      setError(err.message || 'Something went wrong.');
+    setError(err.message || 'Something went wrong.');
     } finally {
-      setSaving(false);
+    setSaving(false);
     }
   };
 
